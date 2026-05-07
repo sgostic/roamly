@@ -9,12 +9,20 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RequestsIndexRouteImport } from './routes/requests.index'
 import { Route as RequestsNewRouteImport } from './routes/requests.new'
+import { Route as RequestsIdRouteImport } from './routes/requests.$id'
+import { Route as OffersNewReqIdRouteImport } from './routes/offers.new.$reqId'
 
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -40,47 +48,101 @@ const RequestsNewRoute = RequestsNewRouteImport.update({
   path: '/requests/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RequestsIdRoute = RequestsIdRouteImport.update({
+  id: '/requests/$id',
+  path: '/requests/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffersNewReqIdRoute = OffersNewReqIdRouteImport.update({
+  id: '/offers/new/$reqId',
+  path: '/offers/new/$reqId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/requests/new': typeof RequestsNewRoute
   '/requests/': typeof RequestsIndexRoute
+  '/offers/new/$reqId': typeof OffersNewReqIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/requests/new': typeof RequestsNewRoute
   '/requests': typeof RequestsIndexRoute
+  '/offers/new/$reqId': typeof OffersNewReqIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
+  '/requests/$id': typeof RequestsIdRoute
   '/requests/new': typeof RequestsNewRoute
   '/requests/': typeof RequestsIndexRoute
+  '/offers/new/$reqId': typeof OffersNewReqIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/requests/new' | '/requests/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/profile'
+    | '/requests/$id'
+    | '/requests/new'
+    | '/requests/'
+    | '/offers/new/$reqId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/requests/new' | '/requests'
-  id: '__root__' | '/' | '/auth' | '/dashboard' | '/requests/new' | '/requests/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/profile'
+    | '/requests/$id'
+    | '/requests/new'
+    | '/requests'
+    | '/offers/new/$reqId'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/profile'
+    | '/requests/$id'
+    | '/requests/new'
+    | '/requests/'
+    | '/offers/new/$reqId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
+  ProfileRoute: typeof ProfileRoute
+  RequestsIdRoute: typeof RequestsIdRoute
   RequestsNewRoute: typeof RequestsNewRoute
   RequestsIndexRoute: typeof RequestsIndexRoute
+  OffersNewReqIdRoute: typeof OffersNewReqIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
@@ -116,6 +178,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RequestsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/requests/$id': {
+      id: '/requests/$id'
+      path: '/requests/$id'
+      fullPath: '/requests/$id'
+      preLoaderRoute: typeof RequestsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offers/new/$reqId': {
+      id: '/offers/new/$reqId'
+      path: '/offers/new/$reqId'
+      fullPath: '/offers/new/$reqId'
+      preLoaderRoute: typeof OffersNewReqIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -123,8 +199,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
+  ProfileRoute: ProfileRoute,
+  RequestsIdRoute: RequestsIdRoute,
   RequestsNewRoute: RequestsNewRoute,
   RequestsIndexRoute: RequestsIndexRoute,
+  OffersNewReqIdRoute: OffersNewReqIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
