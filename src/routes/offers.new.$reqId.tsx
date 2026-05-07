@@ -1,12 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { SERVICES } from "@/lib/marketplace";
 import { toast } from "sonner";
 import { Upload, X } from "lucide-react";
@@ -18,7 +16,6 @@ export const Route = createFileRoute("/offers/new/$reqId")({
 
 function NewOfferPage() {
   const { reqId } = Route.useParams();
-  const { user, loading, isProvider } = useAuth();
   const nav = useNavigate();
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState(1000);
@@ -26,49 +23,19 @@ function NewOfferPage() {
   const [services, setServices] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (loading) return;
-    if (!user) nav({ to: "/auth" });
-    else if (!isProvider) { toast.error("You need to be a provider"); nav({ to: "/dashboard" }); }
-  }, [user, loading, isProvider, nav]);
 
   const toggleSvc = (s: string) =>
     setServices((arr) => arr.includes(s) ? arr.filter(x => x !== s) : [...arr, s]);
 
-  const upload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || !user) return;
-    setBusy(true);
-    const urls: string[] = [];
-    for (const f of Array.from(files)) {
-      const path = `${user.id}/${Date.now()}-${f.name}`;
-      const { error } = await supabase.storage.from("offer-photos").upload(path, f);
-      if (error) { toast.error(error.message); continue; }
-      const { data } = supabase.storage.from("offer-photos").getPublicUrl(path);
-      urls.push(data.publicUrl);
-    }
+    if (!files) return;
+    const urls = Array.from(files).map((f) => URL.createObjectURL(f));
     setPhotos((p) => [...p, ...urls]);
-    setBusy(false);
   };
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-    setBusy(true);
-    const { error } = await supabase.from("offers").insert({
-      request_id: reqId,
-      provider_id: user.id,
-      title,
-      price_total: price,
-      accommodation: accommodation || null,
-      included_services: services,
-      photos,
-      description: description || null,
-    });
-    setBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success("Offer submitted!");
     nav({ to: "/requests/$id", params: { id: reqId } });
   };
@@ -100,7 +67,7 @@ function NewOfferPage() {
             <Label>Photos</Label>
             <div className="mt-2 flex flex-wrap gap-2">
               {photos.map((p, i) => (
-                <div key={p} className="relative">
+                <div key={i} className="relative">
                   <img src={p} alt="" className="h-20 w-20 object-cover rounded-md" />
                   <button type="button" onClick={()=>setPhotos(photos.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5">
                     <X className="h-3 w-3" />
@@ -109,12 +76,12 @@ function NewOfferPage() {
               ))}
               <label className="h-20 w-20 rounded-md border-2 border-dashed flex items-center justify-center cursor-pointer hover:bg-secondary">
                 <Upload className="h-5 w-5 text-muted-foreground" />
-                <input type="file" accept="image/*" multiple className="hidden" onChange={upload} />
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
               </label>
             </div>
           </div>
           <div><Label>Description</Label><Textarea rows={5} value={description} onChange={(e)=>setDescription(e.target.value)} placeholder="What makes this offer special?" /></div>
-          <Button type="submit" size="lg" className="w-full" disabled={busy}>Send offer</Button>
+          <Button type="submit" size="lg" className="w-full">Send offer</Button>
         </form>
       </main>
     </div>

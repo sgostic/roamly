@@ -1,11 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { RequestCard } from "@/components/RequestCard";
-import type { TravelRequest } from "@/lib/marketplace";
+import { MOCK_REQUESTS, MOCK_OFFERS } from "@/lib/marketplace";
 import { Plus } from "lucide-react";
 
 export const Route = createFileRoute("/requests/")({
@@ -14,48 +11,21 @@ export const Route = createFileRoute("/requests/")({
 });
 
 function RequestsList() {
-  const { user, loading } = useAuth();
-  const nav = useNavigate();
-  const [items, setItems] = useState<TravelRequest[]>([]);
-  const [busy, setBusy] = useState(true);
-
-  useEffect(() => { if (!loading && !user) nav({ to: "/auth" }); }, [user, loading, nav]);
-
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const { data } = await supabase
-        .from("travel_requests")
-        .select("*")
-        .eq("status", "open")
-        .order("created_at", { ascending: false });
-      setItems(data ?? []);
-      setBusy(false);
-    })();
-  }, [user]);
-
+  const items = MOCK_REQUESTS;
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between flex-wrap gap-3 mb-8">
           <div>
             <h1 className="font-display text-4xl font-semibold">Open trip requests</h1>
             <p className="text-muted-foreground mt-1">Find travelers looking for offers like yours.</p>
           </div>
           <Link to="/requests/new"><Button><Plus className="h-4 w-4 mr-1" />New request</Button></Link>
         </div>
-        {busy ? (
-          <p className="text-muted-foreground">Loading…</p>
-        ) : items.length === 0 ? (
-          <div className="rounded-2xl border bg-card p-10 text-center">
-            <p className="text-muted-foreground">No open requests yet. Be the first!</p>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {items.map((r) => <RequestCard key={r.id} r={r} />)}
-          </div>
-        )}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((r) => <RequestCard key={r.id} r={{ ...r, offers_count: MOCK_OFFERS[r.id]?.length ?? 0 }} />)}
+        </div>
       </main>
     </div>
   );
