@@ -32,14 +32,29 @@ export type TravelRequest = {
 };
 
 export const PREFERENCES = [
-  "Luxury", "Budget", "Family-friendly", "Romantic",
-  "Adventure", "Beach", "Nightlife", "Culture",
-  "Foodie", "Wellness", "Nature", "City",
+  "Luxury",
+  "Budget",
+  "Family-friendly",
+  "Romantic",
+  "Adventure",
+  "Beach",
+  "Nightlife",
+  "Culture",
+  "Foodie",
+  "Wellness",
+  "Nature",
+  "City",
 ] as const;
 
 export const SERVICES = [
-  "Flights", "Transfers", "Breakfast", "All meals",
-  "Tours", "Car rental", "Insurance", "Guide",
+  "Flights",
+  "Transfers",
+  "Breakfast",
+  "All meals",
+  "Tours",
+  "Car rental",
+  "Insurance",
+  "Guide",
 ] as const;
 
 export const MOCK_REQUESTS: TravelRequest[] = [
@@ -54,7 +69,8 @@ export const MOCK_REQUESTS: TravelRequest[] = [
     currency: "USD",
     travelers_count: 2,
     preferences: ["Romantic", "Beach", "Foodie"],
-    notes: "Anniversary trip. Looking for a quiet boutique stay near the caldera with sunset views.",
+    notes:
+      "Anniversary trip. Looking for a quiet boutique stay near the caldera with sunset views.",
     status: "open",
     created_at: "2026-05-01",
     offers_count: 7,
@@ -210,7 +226,9 @@ export const MOCK_OFFERS: Record<string, Offer[]> = {
       currency: "USD",
       accommodation: "Family chalet in Interlaken, 3 bedrooms",
       included_services: ["Car rental", "Breakfast", "Tours"],
-      photos: ["https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80"],
+      photos: [
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+      ],
       description: "Lakes, hiking, kid-safe via ferrata, and a day at a wildlife park.",
       status: "pending",
       expires_at: "2026-05-25",
@@ -225,7 +243,9 @@ export const MOCK_OFFERS: Record<string, Offer[]> = {
       currency: "USD",
       accommodation: "Eco-lodges in Arenal + Manuel Antonio",
       included_services: ["Transfers", "Breakfast", "Tours", "Guide"],
-      photos: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80"],
+      photos: [
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80",
+      ],
       description: "Volcano hike, sloth & monkey spotting, beach time. Designed for kids 6–12.",
       status: "pending",
       expires_at: "2026-05-28",
@@ -242,7 +262,9 @@ export const MOCK_OFFERS: Record<string, Offer[]> = {
       currency: "USD",
       accommodation: "Boutique hotel Shibuya + ryokan in Higashiyama",
       included_services: ["Transfers", "Tours", "Guide"],
-      photos: ["https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80"],
+      photos: [
+        "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=800&q=80",
+      ],
       description: "Mixed modern Tokyo + traditional Kyoto. Includes JR pass and tea ceremony.",
       status: "pending",
       expires_at: "2026-06-01",
