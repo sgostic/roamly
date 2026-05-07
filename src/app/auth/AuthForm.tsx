@@ -10,7 +10,7 @@ import { signIn, signUp, signInAsDemo, type ActionResult } from "./actions";
 
 const initialState: ActionResult = {};
 
-export function AuthForm() {
+export function AuthForm({ initialTab = "signup" }: { initialTab?: "signin" | "signup" }) {
   const [signInState, signInAction, signInPending] = useActionState(signIn, initialState);
   const [signUpState, signUpAction, signUpPending] = useActionState(signUp, initialState);
   const [role, setRole] = useState<"traveler" | "provider">("traveler");
@@ -28,7 +28,7 @@ export function AuthForm() {
         <div className="absolute inset-0 top-1/2 border-t" />
       </div>
 
-      <Tabs defaultValue="signin">
+      <Tabs defaultValue={initialTab}>
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="signin">Sign in</TabsTrigger>
           <TabsTrigger value="signup">Sign up</TabsTrigger>

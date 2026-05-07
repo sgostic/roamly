@@ -29,13 +29,16 @@ export default function Home() {
                 Tell us where you&apos;d like to go and what you&apos;d like to spend. Verified
                 hosts, hotels and agencies send tailored offers within hours.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div>
                 <Button size="lg" asChild>
-                  <Link href="/requests/new">Post a trip request</Link>
+                  <Link href="/auth">Get started</Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
-                  <Link href="/requests">I&apos;m a provider</Link>
-                </Button>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  Already have an account?{" "}
+                  <Link href="/auth?tab=signin" className="text-primary hover:underline">
+                    Sign in
+                  </Link>
+                </p>
               </div>
             </div>
             <div className="relative aspect-[4/5] md:aspect-square rounded-3xl overflow-hidden shadow-2xl">

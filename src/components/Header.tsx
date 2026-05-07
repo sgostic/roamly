@@ -52,7 +52,7 @@ export async function Header() {
             </>
           ) : (
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/auth">Sign in</Link>
+              <Link href="/auth?tab=signin">Sign in</Link>
             </Button>
           )}
         </div>
