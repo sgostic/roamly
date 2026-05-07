@@ -14,16 +14,190 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      offers: {
+        Row: {
+          accommodation: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          expires_at: string
+          id: string
+          included_services: string[]
+          photos: string[]
+          price_total: number
+          provider_id: string
+          request_id: string
+          status: Database["public"]["Enums"]["offer_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          accommodation?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string
+          id?: string
+          included_services?: string[]
+          photos?: string[]
+          price_total: number
+          provider_id: string
+          request_id: string
+          status?: Database["public"]["Enums"]["offer_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          accommodation?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          expires_at?: string
+          id?: string
+          included_services?: string[]
+          photos?: string[]
+          price_total?: number
+          provider_id?: string
+          request_id?: string
+          status?: Database["public"]["Enums"]["offer_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "travel_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          company_name: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          company_name?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      travel_requests: {
+        Row: {
+          budget_max: number
+          budget_min: number
+          created_at: string
+          currency: string
+          date_end: string
+          date_start: string
+          destination: string | null
+          expires_at: string
+          flexible_destination: boolean
+          id: string
+          notes: string | null
+          preferences: string[]
+          status: Database["public"]["Enums"]["request_status"]
+          traveler_id: string
+          travelers_count: number
+          updated_at: string
+        }
+        Insert: {
+          budget_max: number
+          budget_min: number
+          created_at?: string
+          currency?: string
+          date_end: string
+          date_start: string
+          destination?: string | null
+          expires_at?: string
+          flexible_destination?: boolean
+          id?: string
+          notes?: string | null
+          preferences?: string[]
+          status?: Database["public"]["Enums"]["request_status"]
+          traveler_id: string
+          travelers_count?: number
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number
+          budget_min?: number
+          created_at?: string
+          currency?: string
+          date_end?: string
+          date_start?: string
+          destination?: string | null
+          expires_at?: string
+          flexible_destination?: boolean
+          id?: string
+          notes?: string | null
+          preferences?: string[]
+          status?: Database["public"]["Enums"]["request_status"]
+          traveler_id?: string
+          travelers_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "traveler" | "provider" | "admin"
+      offer_status: "pending" | "accepted" | "rejected" | "withdrawn"
+      request_status: "open" | "closed" | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +324,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["traveler", "provider", "admin"],
+      offer_status: ["pending", "accepted", "rejected", "withdrawn"],
+      request_status: ["open", "closed", "expired"],
+    },
   },
 } as const
