@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { CalendarDays, MapPin, Users, Wallet } from "lucide-react";
+import { CalendarDays, MapPin, Users, Wallet, Inbox } from "lucide-react";
 import type { TravelRequest } from "@/lib/marketplace";
 import { format } from "date-fns";
 
@@ -8,13 +8,13 @@ export function RequestCard({ r }: { r: TravelRequest }) {
     <Link
       to="/requests/$id"
       params={{ id: r.id }}
-      className="group block rounded-2xl border bg-card p-5 hover:shadow-md transition-shadow"
+      className="group block rounded-2xl border bg-card p-5 hover:shadow-md hover:border-primary/40 transition-all"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            {r.flexible_destination ? "Flexible destination" : r.destination ?? "—"}
+            {r.flexible_destination ? "Flexible" : r.destination}
           </div>
           <h3 className="font-display text-xl font-semibold mt-1 group-hover:text-primary transition-colors">
             {r.flexible_destination ? "Open to suggestions" : r.destination}
@@ -24,10 +24,10 @@ export function RequestCard({ r }: { r: TravelRequest }) {
           {r.status}
         </span>
       </div>
-      <div className="grid grid-cols-3 gap-3 text-sm text-muted-foreground">
+      <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{format(new Date(r.date_start), "MMM d")}–{format(new Date(r.date_end), "MMM d")}</div>
         <div className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" />{r.travelers_count}</div>
-        <div className="flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" />{r.currency} {r.budget_min}-{r.budget_max}</div>
+        <div className="flex items-center gap-1.5"><Wallet className="h-3.5 w-3.5" />${r.budget_min / 1000}–{r.budget_max / 1000}k</div>
       </div>
       {r.preferences.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -36,6 +36,9 @@ export function RequestCard({ r }: { r: TravelRequest }) {
           ))}
         </div>
       )}
+      <div className="mt-4 pt-3 border-t flex items-center gap-1.5 text-xs text-muted-foreground">
+        <Inbox className="h-3.5 w-3.5" />{r.offers_count} offer{r.offers_count !== 1 && "s"} received
+      </div>
     </Link>
   );
 }
