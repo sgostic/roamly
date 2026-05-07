@@ -74,7 +74,9 @@ export type Database = {
           company_name: string | null;
           created_at: string;
           display_name: string | null;
+          email: string | null;
           id: string;
+          role: Database["public"]["Enums"]["user_role"];
           updated_at: string;
         };
         Insert: {
@@ -83,7 +85,9 @@ export type Database = {
           company_name?: string | null;
           created_at?: string;
           display_name?: string | null;
-          id: string;
+          email?: string | null;
+          id?: string;
+          role?: Database["public"]["Enums"]["user_role"];
           updated_at?: string;
         };
         Update: {
@@ -92,7 +96,9 @@ export type Database = {
           company_name?: string | null;
           created_at?: string;
           display_name?: string | null;
+          email?: string | null;
           id?: string;
+          role?: Database["public"]["Enums"]["user_role"];
           updated_at?: string;
         };
         Relationships: [];
@@ -154,44 +160,22 @@ export type Database = {
         };
         Relationships: [];
       };
-      user_roles: {
-        Row: {
-          created_at: string;
-          id: string;
-          role: Database["public"]["Enums"]["app_role"];
-          user_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          role: Database["public"]["Enums"]["app_role"];
-          user_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          role?: Database["public"]["Enums"]["app_role"];
-          user_id?: string;
-        };
-        Relationships: [];
-      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      has_role: {
+      accept_offer: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"];
-          _user_id: string;
+          p_offer_id: string;
         };
-        Returns: boolean;
+        Returns: undefined;
       };
     };
     Enums: {
-      app_role: "traveler" | "provider" | "admin";
       offer_status: "pending" | "accepted" | "rejected" | "withdrawn";
       request_status: "open" | "closed" | "expired";
+      user_role: "traveler" | "provider";
     };
     CompositeTypes: {
       [_ in never]: never;

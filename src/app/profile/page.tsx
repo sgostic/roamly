@@ -1,67 +1,43 @@
-"use client";
-
-import { useState } from "react";
+import type { Metadata } from "next";
+import { Lock } from "lucide-react";
 import { Header } from "@/components/Header";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
+import { requireUser } from "@/lib/auth";
+import { ProfileForm } from "./ProfileForm";
 
-export default function ProfilePage() {
-  const [displayName, setDisplayName] = useState("Alex Morgan");
-  const [companyName, setCompanyName] = useState("");
-  const [bio, setBio] = useState("");
-  const [isProvider, setIsProvider] = useState(true);
+export const metadata: Metadata = { title: "Profile — Roamly" };
+
+export default async function ProfilePage() {
+  const user = await requireUser();
+  const isProvider = user.role === "provider";
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-10 max-w-xl">
-        <h1 className="font-display text-4xl font-semibold mb-8">Profile</h1>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            toast.success("Profile saved");
-          }}
-          className="space-y-5 rounded-2xl border bg-card p-6 mb-6"
-        >
+        <h1 className="font-display text-4xl font-semibold mb-2">Profile</h1>
+        <p className="text-muted-foreground mb-6">{user.email}</p>
+
+        <ProfileForm user={user} />
+
+        <div className="mt-6 rounded-2xl border bg-card p-6 flex items-start justify-between gap-4">
           <div>
-            <Label>Display name</Label>
-            <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-          </div>
-          <div>
-            <Label>Company / brand name</Label>
-            <Input
-              value={companyName}
-              onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="Optional, shown on offers"
-            />
-          </div>
-          <div>
-            <Label>Bio</Label>
-            <Textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} />
-          </div>
-          <Button type="submit">Save changes</Button>
-        </form>
-        <div className="rounded-2xl border bg-card p-6 flex items-center justify-between gap-4">
-          <div>
-            <p className="font-medium">Provider account</p>
-            <p className="text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <p className="font-medium">Account type</p>
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" aria-label="Locked" />
+            </div>
+            <p className="text-sm text-muted-foreground mt-1">
               {isProvider
-                ? "You can submit offers on travel requests."
-                : "Become a provider to send offers."}
+                ? "You submit offers on travel requests. You can&rsquo;t create requests."
+                : "You post travel requests. You can&rsquo;t send offers."}
             </p>
           </div>
-          <Button
-            variant={isProvider ? "outline" : "default"}
-            onClick={() => {
-              setIsProvider(!isProvider);
-              toast.success(isProvider ? "Disabled provider mode" : "You're now a provider");
-            }}
+          <span
+            className={`text-xs rounded-full px-3 py-1 capitalize whitespace-nowrap ${
+              isProvider ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"
+            }`}
           >
-            {isProvider ? "Disable" : "Enable"}
-          </Button>
+            {user.role}
+          </span>
         </div>
       </main>
     </div>
