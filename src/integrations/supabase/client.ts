@@ -3,20 +3,26 @@ import type { Database } from "./types";
 
 function createSupabaseClient() {
   // NEXT_PUBLIC_* vars are inlined at build time for client bundles and available in SSR too.
+  // Accept either naming since the Vercel-Supabase integration uses ANON_KEY while
+  // newer manual setups may use PUBLISHABLE_KEY.
   const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const SUPABASE_ANON_KEY =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ["NEXT_PUBLIC_SUPABASE_URL"] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] : []),
+      ...(!SUPABASE_ANON_KEY
+        ? ["NEXT_PUBLIC_SUPABASE_ANON_KEY (or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)"]
+        : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Add them to .env.local.`;
     console.error(`[Supabase] ${message}`);
     throw new Error(message);
   }
 
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  return createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       storage: typeof window !== "undefined" ? localStorage : undefined,
       persistSession: true,
