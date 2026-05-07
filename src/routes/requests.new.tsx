@@ -1,13 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useAuth } from "@/lib/auth";
-import { supabase } from "@/integrations/supabase/client";
 import { PREFERENCES } from "@/lib/marketplace";
 import { toast } from "sonner";
 
@@ -17,7 +15,6 @@ export const Route = createFileRoute("/requests/new")({
 });
 
 function NewRequestPage() {
-  const { user, loading } = useAuth();
   const nav = useNavigate();
   const [flexible, setFlexible] = useState(false);
   const [destination, setDestination] = useState("");
@@ -28,33 +25,14 @@ function NewRequestPage() {
   const [travelers, setTravelers] = useState(2);
   const [prefs, setPrefs] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => { if (!loading && !user) nav({ to: "/auth" }); }, [user, loading, nav]);
 
   const togglePref = (p: string) =>
     setPrefs((arr) => arr.includes(p) ? arr.filter(x => x !== p) : [...arr, p]);
 
-  const submit = async (e: React.FormEvent) => {
+  const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
-    setBusy(true);
-    const { data, error } = await supabase.from("travel_requests").insert({
-      traveler_id: user.id,
-      destination: flexible ? null : destination,
-      flexible_destination: flexible,
-      date_start: dateStart,
-      date_end: dateEnd,
-      budget_min: budgetMin,
-      budget_max: budgetMax,
-      travelers_count: travelers,
-      preferences: prefs,
-      notes: notes || null,
-    }).select().single();
-    setBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success("Request posted! Providers can now send offers.");
-    nav({ to: "/requests/$id", params: { id: data.id } });
+    nav({ to: "/requests/$id", params: { id: "r1" } });
   };
 
   return (
@@ -74,7 +52,7 @@ function NewRequestPage() {
           {!flexible && (
             <div>
               <Label>Destination</Label>
-              <Input required={!flexible} value={destination} onChange={(e)=>setDestination(e.target.value)} placeholder="e.g. Lisbon, Portugal" />
+              <Input required value={destination} onChange={(e)=>setDestination(e.target.value)} placeholder="e.g. Lisbon, Portugal" />
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
@@ -101,7 +79,7 @@ function NewRequestPage() {
             <Label>Notes</Label>
             <Textarea value={notes} onChange={(e)=>setNotes(e.target.value)} placeholder="Anything else providers should know?" rows={4} />
           </div>
-          <Button type="submit" size="lg" className="w-full" disabled={busy}>Post request</Button>
+          <Button type="submit" size="lg" className="w-full">Post request</Button>
         </form>
       </main>
     </div>
