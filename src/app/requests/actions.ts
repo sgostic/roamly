@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { logEvent } from "@/lib/activity";
 import { requireRole } from "@/lib/auth";
 
 export type ActionResult = { error?: string };
@@ -56,6 +57,26 @@ export async function createTravelRequest(
     .single();
 
   if (error || !data) return { error: error?.message ?? "Could not create request." };
+
+  await logEvent({
+    type: "request_created",
+    actorId: user.id,
+    actorRole: "traveler",
+    targetType: "request",
+    targetId: data.id,
+    metadata: {
+      destination: flexible ? null : destination,
+      flexible_destination: flexible,
+      date_start: dateStart,
+      date_end: dateEnd,
+      budget_min: budgetMin,
+      budget_max: budgetMax,
+      travelers_count: travelers,
+      preferences,
+      actor_email: user.email,
+      actor_name: user.display_name,
+    },
+  });
 
   revalidatePath("/dashboard");
   revalidatePath("/requests");

@@ -2,20 +2,28 @@
 // when SUPABASE_SERVICE_ROLE_KEY is not configured. State is attached to globalThis
 // so it survives Next.js dev HMR module reloads. Resets on server restart.
 
-import type { OfferRow, ProfileRow, TravelRequestRow } from "@/lib/marketplace";
-import { SEED_OFFERS, SEED_PROFILES, SEED_TRAVEL_REQUESTS } from "./mock-data";
+import type { ActivityEventRow, OfferRow, ProfileRow, TravelRequestRow } from "@/lib/marketplace";
+import {
+  SEED_ACTIVITY_EVENTS,
+  SEED_OFFERS,
+  SEED_PROFILES,
+  SEED_TRAVEL_REQUESTS,
+} from "./mock-data";
 
-type TableName = "profiles" | "travel_requests" | "offers";
+type TableName = "profiles" | "travel_requests" | "offers" | "activity_events";
 type RowFor<T extends TableName> = T extends "profiles"
   ? ProfileRow
   : T extends "travel_requests"
     ? TravelRequestRow
-    : OfferRow;
+    : T extends "offers"
+      ? OfferRow
+      : ActivityEventRow;
 
 type MockDB = {
   profiles: ProfileRow[];
   travel_requests: TravelRequestRow[];
   offers: OfferRow[];
+  activity_events: ActivityEventRow[];
 };
 
 const GLOBAL_KEY = "__roamlyMockDB__";
@@ -27,6 +35,7 @@ function getDB(): MockDB {
       profiles: SEED_PROFILES.map((r) => ({ ...r })),
       travel_requests: SEED_TRAVEL_REQUESTS.map((r) => ({ ...r })),
       offers: SEED_OFFERS.map((r) => ({ ...r })),
+      activity_events: SEED_ACTIVITY_EVENTS.map((r) => ({ ...r })),
     } satisfies MockDB;
   }
   return g[GLOBAL_KEY] as MockDB;
@@ -62,6 +71,22 @@ class SelectQuery<T extends Record<string, unknown>> implements PromiseLike<OkRe
     this.filters.push((r) => {
       const v = r[col];
       return v != null && (v as never) > (val as never);
+    });
+    return this;
+  }
+
+  gte(col: keyof T & string, val: unknown): this {
+    this.filters.push((r) => {
+      const v = r[col];
+      return v != null && (v as never) >= (val as never);
+    });
+    return this;
+  }
+
+  lte(col: keyof T & string, val: unknown): this {
+    this.filters.push((r) => {
+      const v = r[col];
+      return v != null && (v as never) <= (val as never);
     });
     return this;
   }
@@ -204,36 +229,45 @@ function withDefaults<T extends TableName>(table: T, row: Partial<RowFor<T>>): R
   const base: Record<string, unknown> = {
     id: crypto.randomUUID(),
     created_at: now,
-    updated_at: now,
   };
-  if (table === "profiles") {
-    base.role = "traveler";
-    base.avatar_url = null;
-    base.bio = null;
-    base.company_name = null;
-    base.email = null;
-    base.display_name = null;
-  } else if (table === "travel_requests") {
-    base.currency = "USD";
-    base.flexible_destination = false;
-    base.preferences = [];
-    base.status = "open";
-    base.travelers_count = 1;
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 14);
-    base.expires_at = expires.toISOString();
-    base.notes = null;
-    base.destination = null;
+  if (table === "activity_events") {
+    base.actor_id = null;
+    base.actor_role = null;
+    base.target_type = null;
+    base.target_id = null;
+    base.metadata = {};
   } else {
-    base.currency = "USD";
-    base.included_services = [];
-    base.photos = [];
-    base.status = "pending";
-    base.accommodation = null;
-    base.description = null;
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 7);
-    base.expires_at = expires.toISOString();
+    // All other tables track updated_at; activity_events is append-only.
+    base.updated_at = now;
+    if (table === "profiles") {
+      base.role = "traveler";
+      base.avatar_url = null;
+      base.bio = null;
+      base.company_name = null;
+      base.email = null;
+      base.display_name = null;
+    } else if (table === "travel_requests") {
+      base.currency = "USD";
+      base.flexible_destination = false;
+      base.preferences = [];
+      base.status = "open";
+      base.travelers_count = 1;
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 14);
+      base.expires_at = expires.toISOString();
+      base.notes = null;
+      base.destination = null;
+    } else {
+      base.currency = "USD";
+      base.included_services = [];
+      base.photos = [];
+      base.status = "pending";
+      base.accommodation = null;
+      base.description = null;
+      const expires = new Date();
+      expires.setDate(expires.getDate() + 7);
+      base.expires_at = expires.toISOString();
+    }
   }
   return { ...base, ...(row as Record<string, unknown>) } as RowFor<T>;
 }

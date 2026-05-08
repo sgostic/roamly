@@ -3,6 +3,7 @@ import type { Database } from "@/integrations/supabase/types";
 export type TravelRequestRow = Database["public"]["Tables"]["travel_requests"]["Row"];
 export type OfferRow = Database["public"]["Tables"]["offers"]["Row"];
 export type ProfileRow = Database["public"]["Tables"]["profiles"]["Row"];
+export type ActivityEventRow = Database["public"]["Tables"]["activity_events"]["Row"];
 
 // What RequestCard renders — a request row plus the count of offers received.
 export type TravelRequest = TravelRequestRow & { offers_count: number };

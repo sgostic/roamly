@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { logEvent } from "@/lib/activity";
 import { requireUser } from "@/lib/auth";
 
 export type ActionResult = { error?: string; success?: boolean };
@@ -28,6 +29,26 @@ export async function updateProfile(
     .eq("id", user.id);
 
   if (error) return { error: error.message };
+
+  const changedFields: string[] = [];
+  if (displayName !== user.display_name) changedFields.push("display_name");
+  if (user.role === "provider" && companyName !== user.company_name) {
+    changedFields.push("company_name");
+  }
+  if (bio !== user.bio) changedFields.push("bio");
+
+  await logEvent({
+    type: "profile_updated",
+    actorId: user.id,
+    actorRole: user.role,
+    targetType: "profile",
+    targetId: user.id,
+    metadata: {
+      changed_fields: changedFields,
+      actor_email: user.email,
+      actor_name: displayName,
+    },
+  });
 
   revalidatePath("/profile");
   revalidatePath("/", "layout");

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { logEvent } from "@/lib/activity";
 import { requireRole } from "@/lib/auth";
 
 export type ActionResult = { error?: string };
@@ -76,18 +77,41 @@ export async function submitOffer(_prev: ActionResult, formData: FormData): Prom
     return { error: e instanceof Error ? e.message : "Photo upload failed." };
   }
 
-  const { error } = await supabaseAdmin.from("offers").insert({
-    request_id: requestId,
-    provider_id: user.id,
-    title,
-    price_total: price,
-    accommodation,
-    included_services: services,
-    photos: photoUrls,
-    description,
-  });
+  const { data: insertedOffer, error } = await supabaseAdmin
+    .from("offers")
+    .insert({
+      request_id: requestId,
+      provider_id: user.id,
+      title,
+      price_total: price,
+      accommodation,
+      included_services: services,
+      photos: photoUrls,
+      description,
+    })
+    .select("id")
+    .single();
 
-  if (error) return { error: error.message };
+  if (error || !insertedOffer) return { error: error?.message ?? "Could not submit offer." };
+
+  await logEvent({
+    type: "offer_submitted",
+    actorId: user.id,
+    actorRole: "provider",
+    targetType: "offer",
+    targetId: insertedOffer.id,
+    metadata: {
+      request_id: requestId,
+      title,
+      price_total: price,
+      currency: "USD",
+      photos_count: photoUrls.length,
+      services_count: services.length,
+      actor_email: user.email,
+      actor_name: user.display_name,
+      company_name: user.company_name,
+    },
+  });
 
   revalidatePath(`/requests/${requestId}`);
   revalidatePath("/dashboard");
@@ -116,6 +140,28 @@ export async function acceptOffer(offerId: string): Promise<ActionResult> {
 
   const { error: rpcErr } = await supabaseAdmin.rpc("accept_offer", { p_offer_id: offerId });
   if (rpcErr) return { error: rpcErr.message };
+
+  // Look up the provider id so we can attribute the accepted offer in metadata.
+  const { data: acceptedOffer } = await supabaseAdmin
+    .from("offers")
+    .select("provider_id")
+    .eq("id", offerId)
+    .maybeSingle();
+
+  await logEvent({
+    type: "offer_accepted",
+    actorId: user.id,
+    actorRole: "traveler",
+    targetType: "offer",
+    targetId: offerId,
+    metadata: {
+      offer_id: offerId,
+      request_id: offer.request_id,
+      provider_id: acceptedOffer?.provider_id ?? null,
+      actor_email: user.email,
+      actor_name: user.display_name,
+    },
+  });
 
   revalidatePath(`/requests/${offer.request_id}`);
   revalidatePath("/dashboard");

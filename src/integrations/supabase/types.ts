@@ -8,6 +8,47 @@ export type Database = {
   };
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          actor_id: string | null;
+          actor_role: Database["public"]["Enums"]["user_role"] | null;
+          created_at: string;
+          event_type: Database["public"]["Enums"]["activity_event_type"];
+          id: string;
+          metadata: Json;
+          target_id: string | null;
+          target_type: string | null;
+        };
+        Insert: {
+          actor_id?: string | null;
+          actor_role?: Database["public"]["Enums"]["user_role"] | null;
+          created_at?: string;
+          event_type: Database["public"]["Enums"]["activity_event_type"];
+          id?: string;
+          metadata?: Json;
+          target_id?: string | null;
+          target_type?: string | null;
+        };
+        Update: {
+          actor_id?: string | null;
+          actor_role?: Database["public"]["Enums"]["user_role"] | null;
+          created_at?: string;
+          event_type?: Database["public"]["Enums"]["activity_event_type"];
+          id?: string;
+          metadata?: Json;
+          target_id?: string | null;
+          target_type?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "activity_events_actor_id_fkey";
+            columns: ["actor_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       offers: {
         Row: {
           accommodation: string | null;
@@ -173,6 +214,15 @@ export type Database = {
       };
     };
     Enums: {
+      activity_event_type:
+        | "user_signed_up"
+        | "user_signed_in"
+        | "user_signed_out"
+        | "request_created"
+        | "offer_accepted"
+        | "offer_submitted"
+        | "profile_updated"
+        | "page_viewed";
       offer_status: "pending" | "accepted" | "rejected" | "withdrawn";
       request_status: "open" | "closed" | "expired";
       user_role: "traveler" | "provider";
@@ -301,6 +351,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      activity_event_type: [
+        "user_signed_up",
+        "user_signed_in",
+        "user_signed_out",
+        "request_created",
+        "offer_accepted",
+        "offer_submitted",
+        "profile_updated",
+        "page_viewed",
+      ],
       app_role: ["traveler", "provider", "admin"],
       offer_status: ["pending", "accepted", "rejected", "withdrawn"],
       request_status: ["open", "closed", "expired"],
